@@ -1,24 +1,47 @@
+import warnings
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
+
 import os
 import random
 import pandas as pd
 
-def outputFormating(toShow):
-    
-    for i in range(len(toShow)):
 
-        print("{}.".format(i+1))
-        print("     Name:   {}".format(toShow[i][0]))
+def outputFormating(df_aux):
 
-        aux = toShow[i][1][0]
+    temp = random.randint(0, df_aux.shape[0]-1)
+    df_toShow = pd.DataFrame(columns = ["Name", "Genre", "Type", "Length"])
+
+    name = df_aux.loc[temp, "Name"]
+    genre = df_aux.loc[temp, "Genre"]
+    aType = df_aux.loc[temp, "Type"]
+    length = df_aux.loc[temp, "Length"]
+
+    df_toShow = df_toShow.append({"Name" : name,
+                     "Genre" : genre,
+                     "Type" : aType,
+                     "Length" : length
+                    }, ignore_index = True)
         
-        if len(toShow[i][1]) > 1:
+    name = df_toShow.loc[0, "Name"]
+    genre = df_toShow.loc[0, "Genre"].split(", ")
+    aType = df_toShow.loc[0, "Type"]
+    length = df_toShow.loc[0, "Length"].split(", ")
 
-            for j in range(1, len(toShow[i][1])):
-                aux = aux + ", " + toShow[i][1][j]
+    print("Name:   {}".format(name))
 
-        print("     Genre:  {}".format(aux))
-        print("     Type:   {}".format(toShow[i][2]))
-        print("     Length: {}, {}".format(toShow[i][3][0], toShow[i][3][1]))
+    aux = genre[0]
+    
+    if len(genre) > 1:
+
+        for j in range(1, len(genre)):
+            aux = aux + ", " + genre[j]
+
+    print("Genre:  {}".format(aux))
+    print("Type:   {}".format(aType))
+    print("Length: {}, {}".format(length[0], length[1]))
+    
+    print("\nENJOY IT!")
 
 
 
@@ -32,22 +55,25 @@ print("****************************")
 
 
 # List of animes
-animes = [["5 Centimeters Per Second", ["Drama", "Romance", "Slice of Life"], "Movie", ["Short", "1h06"]], 
-            ["Ponyo", ["Adventure", "Fantasy"], "Movie", ["Short", "1h40"]], 
-            ["Your Name.", ["Drama", "Supernatural"], "Movie", ["Short", "1h46"]], 
-            ["The Garden of Words", ["Drama", "Romance", "Slice of Life"], "Movie", ["Short", "0h46"]], 
-            ["Hakubo", ["Romance"], "Movie", ["Short", "0h52"]],
-            ["Black Clover", ["Action", "Comedy", "Fantasy"], "Series", ["Long", "1 Season (170)"]], 
-            ["Gokushufudou", ["Comedy"], "Series", ["Short", "2 Seasons (5/5)"]], 
-            ["K-On!", ["Comedy"], "Series", ["Short", "2 Seasons (13/26)"]], 
-            ["Kuroko no Basket", ["Sports"], "Series", ["Long", "3 Seasons, 1 Movie (25/25/25/1h30)"]], 
-            ["How Not to Summon a Demon Lord", ["Comedy", "Fantasy", "Ecchi"], "Series", ["Short", "2 Seasons (12/10)"]]
-         ]
+# animes = [["5 Centimeters Per Second", ["Drama", "Romance", "Slice of Life"], "Movie", ["Short", "1h06"]], 
+#             ["Ponyo", ["Adventure", "Fantasy"], "Movie", ["Short", "1h40"]], 
+#             ["Your Name.", ["Drama", "Supernatural"], "Movie", ["Short", "1h46"]], 
+#             ["The Garden of Words", ["Drama", "Romance", "Slice of Life"], "Movie", ["Short", "0h46"]], 
+#             ["Hakubo", ["Romance"], "Movie", ["Short", "0h52"]],
+#             ["Black Clover", ["Action", "Comedy", "Fantasy"], "Series", ["Long", "1 Season (170)"]], 
+#             ["Gokushufudou", ["Comedy"], "Series", ["Short", "2 Seasons (5/5)"]], 
+#             ["K-On!", ["Comedy"], "Series", ["Short", "2 Seasons (13/26)"]], 
+#             ["Kuroko no Basket", ["Sports"], "Series", ["Long", "3 Seasons, 1 Movie (25/25/25/1h30)"]], 
+#             ["How Not to Summon a Demon Lord", ["Comedy", "Fantasy", "Ecchi"], "Series", ["Short", "2 Seasons (12/10)"]]
+#          ]
 
 
+df_animes = pd.read_csv("animeList.txt", sep='|')
 
 choice = 0
 
+
+# Random/Filter options
 print("\nChoose an option:")
 
 while choice < 1 or choice > 2:
@@ -66,14 +92,11 @@ while choice < 1 or choice > 2:
 os.system("clear")
 
 if choice  == 1:
-    temp = random.randint(0, len(animes)-1)
-    toShow = []
-    toShow.append(animes[temp])
 
-    print("The selected anime is:")
+    print("Your random anime is\n")
 
-    outputFormating(toShow)
-    print("\nENJOY IT!")
+    outputFormating(df_animes)
+
     exit()
 
 
@@ -84,11 +107,14 @@ filters = ["Genre", "Series/Movie", "Length"]
 # Creating a list of genres
 genres_duplicates = []
 
-for anime in animes:
+for i in range(df_animes.shape[0]):
 
-    for i in range(len(anime[1])):
+    aux = df_animes.loc[i, "Genre"].split(", ")
 
-        genres_duplicates.append(anime[1][i])
+    for genre in aux:
+        if genre == "Series":
+            print(df_animes.loc[i, "Name"])
+        genres_duplicates.append(genre)
 
 
 # Erasing genres duplicates
@@ -142,7 +168,7 @@ if choice == 1:
 
     choice = 0
 
-    print("Choose a genre:")
+    print("\nChoose a genre:")
     
     while choice < 1 or choice > len(genres):
 
@@ -166,7 +192,7 @@ elif choice == 2:
 
     choice = 0
     
-    print("Choose one of the following:")
+    print("\nChoose one of the following:")
 
     while choice < 1 or choice > 2:
 
@@ -189,7 +215,7 @@ elif choice == 3:
 
     choice = 0
     
-    print("Choose your prefered length:")
+    print("\nChoose your prefered length:")
 
     while choice < 1 or choice > 2:
 
@@ -211,89 +237,100 @@ os.system("clear")
 
 if filterTag == "genre":
 
-    toShow = []
+    df_aux = pd.DataFrame(columns = ["Name", "Genre", "Type", "Length"])
 
-    print("This is a list of the animes categorized as {}:".format(genres[choice-1]))
-
-    for anime in animes:
+    for i in range(df_animes.shape[0]):
         
-        for i in range(len(anime[1])):
+        name = df_animes.loc[i, "Name"]
+        genre = df_animes.loc[i, "Genre"]
+        aux = genre.split(", ")
+        aType = df_animes.loc[i, "Type"]
+        length = df_animes.loc[i, "Length"]
 
-            if genres[choice-1] == anime[1][i]:
-                toShow.append(anime)
+        for j in range(len(aux)):
+
+            if genres[choice-1] == aux[j]:
+                df_aux = df_aux.append({"Name" : name,
+                                  "Genre" : genre,
+                                  "Type" : aType,
+                                  "Length" : length
+                                 }, ignore_index = True )
                 break
 
-    outputFormating(toShow)
+
+    print("Your random {} anime is:\n".format(genres[choice-1].lower()))
+
+    outputFormating(df_aux)
 
     
 elif filterTag == "type":
 
-    toShow = []
+    df_aux = pd.DataFrame(columns = ["Name", "Genre", "Type", "Length"])
+
+    for i in range(df_animes.shape[0]):
+        
+        name = df_animes.loc[i, "Name"]
+        genre = df_animes.loc[i, "Genre"]
+        aType = df_animes.loc[i, "Type"]
+        length = df_animes.loc[i, "Length"]
+
+        if  choice == 1 and "Series" == aType:
+            df_aux = df_aux.append({"Name" : name,
+                                  "Genre" : genre,
+                                  "Type" : aType,
+                                  "Length" : length
+                                 }, ignore_index = True )
+            
+        elif choice == 2 and "Movie" == aType:
+            df_aux = df_aux.append({"Name" : name,
+                                  "Genre" : genre,
+                                  "Type" : aType,
+                                  "Length" : length
+                                 }, ignore_index = True )
 
     if choice == 1:
-        print("This is a list of the anime series:")
-    else:
-        print("This is a list of the anime movies")
+        text = "series"
+    
+    if choice == 2:
+        text = "movie"
 
-    for anime in animes:
+    print("Your random anime {} is:\n".format(text))
 
-        if  choice == 1:
-            if "Series" == anime[2]:    
-                toShow.append(anime)
-            
-        else:
-            if "Movie" == anime[2]:
-                toShow.append(anime)
-
-
-    outputFormating(toShow)
+    outputFormating(df_aux)
 
     
 elif filterTag == "length":
 
-    toShow = []
+    df_aux = pd.DataFrame(columns = ["Name", "Genre", "Type", "Length"])
+
+    for i in range(df_animes.shape[0]):
+        
+        name = df_animes.loc[i, "Name"]
+        genre = df_animes.loc[i, "Genre"]
+        aType = df_animes.loc[i, "Type"]
+        length = df_animes.loc[i, "Length"]
+        aux = length.split(", ")
+
+        if  choice == 1 and "Short" == aux[0]:
+            df_aux = df_aux.append({"Name" : name,
+                                  "Genre" : genre,
+                                  "Type" : aType,
+                                  "Length" : length
+                                 }, ignore_index = True )
+            
+        elif choice == 2 and "Long" == aux[0]:
+            df_aux = df_aux.append({"Name" : name,
+                                  "Genre" : genre,
+                                  "Type" : aType,
+                                  "Length" : length
+                                 }, ignore_index = True )
 
     if choice == 1:
-        print("This is a list of short animes:")
-    else:
-        print("This is a list of long animes:")
+        text = "short"
+    
+    if choice == 2:
+        text = "long"
 
-    for anime in animes:
+    print("Your random {} anime is:\n".format(text))
 
-        if  choice == 1:
-            if "Short" == anime[3][0]:    
-                toShow.append(anime)
-            
-        else:
-            if "Long" == anime[3][0]:
-                toShow.append(anime)
-
-
-    outputFormating(toShow)
-
-
-answer = "a"
-
-while not answer.lower().startswith("y") and not answer.lower().startswith("n"):
-
-    answer = input("\nDo you want to select one randomly?: ")
-
-    if answer.lower().startswith("y"):
-        temp = random.randint(0, len(toShow)-1)
-        toShow = []
-        toShow.append(animes[temp])
-
-        os.system("clear")
-
-        print("The selected anime is:")
-
-        outputFormating(toShow)
-        print("\nENJOY IT!")
-
-    elif answer.lower().startswith("n"):
-        os.system("clear")
-        print("\nHave a grate day!")
-
-    else:
-        os.system("clear")
-        print("Please, just write Yes or No!\n")
+    outputFormating(df_aux)
